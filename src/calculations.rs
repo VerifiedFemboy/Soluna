@@ -1,4 +1,4 @@
-use chrono::{DateTime, Datelike, Local, Timelike, Utc};
+use chrono::{DateTime, Datelike, Local, Timelike};
 
 pub fn solar_declination(julian_day: f64) -> f64 {
     let n = julian_day - 1.0;
@@ -7,10 +7,7 @@ pub fn solar_declination(julian_day: f64) -> f64 {
     declination
 }
 
-pub fn solar_hour_angle(julian_day: f64, time: f64, longitude: f64) -> f64 {
-    let n = julian_day - 1.0;
-    let angle = 23.44 * (std::f64::consts::PI / 180.0);
-    let declination = angle * (360.0 * (n + 10.0) / 365.0).cos();
+pub fn solar_hour_angle(time: f64, longitude: f64) -> f64 {
     let hour_angle = (time - 12.0) * 15.0 + longitude;
     hour_angle
 }

@@ -21,7 +21,7 @@ async fn main() {
         let longitude = geolocation::find(current_ip["ip"].as_str().unwrap()).unwrap().longitude.parse::<f64>().unwrap();
 
         let declination = calculations::solar_declination(julian_day);
-        let hour_angle = calculations::solar_hour_angle(julian_day, time, longitude);
+        let hour_angle = calculations::solar_hour_angle(time, longitude);
 
         println!("Current Time (LOCAL): {}", current_time);
         println!("Julian Day: {}", julian_day);
