@@ -1,50 +1,68 @@
-# Solar Calculations in Rust
+# Solar Position Calculator
 
-This Rust project calculates solar declination and hour angle based on the current UTC time. The program continuously updates these values every 500 milliseconds and prints them to the console.
-
-## Project Structure
-
-- `main.rs`: The main entry point of the program.
-- `calculations.rs`: Contains the functions for calculating Julian Day, solar declination, and solar hour angle.
-
-## Dependencies
-
-This project uses the following dependencies:
-- `chrono`: For handling date and time.
+This Rust program calculates the solar declination and hour angle based on the current time and the user's IP address. It uses several external crates and modules to achieve this functionality.
 
 ## How It Works
 
-### Main Loop
+### Main Function
 
-The `main` function contains an infinite loop that:
-1. Clears the console.
-2. Sleeps for 500 milliseconds.
-3. Gets the current UTC time.
-4. Calculates the Julian Day.
-5. Calculates the current time in hours, minutes, and seconds.
-6. Calculates the solar declination and hour angle.
-7. Prints the current time, Julian Day, declination, and hour angle to the console.
+The main function is the entry point of the program. It performs the following steps:
 
-```rust
-use chrono::Timelike;
+1. **Fetch Current IP Address**:
+    - Uses the `reqwest` crate to make an asynchronous HTTP GET request to `https://api64.ipify.org?format=json` to fetch the current IP address.
+    - Parses the response to extract the IP address using the `serde_json` crate.
 
-mod calculations;
+2. **Infinite Loop**:
+    - Clears the terminal screen.
+    - Sleeps for 500 milliseconds.
+    - Fetches the current local time using the `chrono` crate.
+    - Calculates the Julian Day using the `calculations::julian_day` function.
+    - Calculates the current time in hours, minutes, and seconds.
+    - Fetches the geographical location (longitude) based on the IP address using the `geolocation::find` function.
+    - Calculates the solar declination using the `calculations::solar_declination` function.
+    - Calculates the solar hour angle using the `calculations::solar_hour_angle` function.
+    - Prints the current local time, Julian Day, solar declination, and solar hour angle to the terminal.
 
-fn main() {
-    loop {
-        print!("\x1B[2J\x1B[1;1H");
-        std::thread::sleep(std::time::Duration::from_millis(500));
-        let current_time: chrono::DateTime<chrono::Utc> = chrono::Utc::now();
-        let julian_day = calculations::julian_day(current_time);
-        let time = current_time.hour() as f64 + current_time.minute() as f64 / 60.0 + current_time.second() as f64 / 3600.0;
-        let longitude = 15.0;
+### Modules and Functions
 
-        let declination = calculations::solar_declination(julian_day);
-        let hour_angle = calculations::solar_hour_angle(julian_day, time, longitude);
+#### `calculations` Module
 
-        println!("Current Time (UTC): {}", current_time);
-        println!("Julian Day: {}", julian_day);
-        println!("Declination: {}", declination);
-        println!("Hour Angle: {}", hour_angle);
-    }
-}
+- **julian_day**:
+    - Calculates the Julian Day from the given local time.
+
+- **solar_declination**:
+    - Calculates the solar declination based on the Julian Day.
+
+- **solar_hour_angle**:
+    - Calculates the solar hour angle based on the Julian Day, current time, and longitude.
+
+#### `geolocation` Module
+
+- **find**:
+    - Fetches the geographical location (latitude and longitude) based on the given IP address using the `isahc` crate to make an HTTP GET request to `http://ip-api.com/json/{ip}`.
+    - Parses the response to extract the location details.
+
+### External Crates
+
+- **chrono**:
+    - Used for handling date and time operations.
+
+- **reqwest**:
+    - Used for making HTTP requests.
+
+- **serde_json**:
+    - Used for parsing JSON responses.
+
+- **tokio**:
+    - Used for asynchronous programming.
+
+- **isahc**:
+    - Used for making HTTP requests.
+
+## Running the Program
+
+To run the program, ensure you have Rust and Cargo installed. Then, execute the following commands:
+
+```sh
+cargo build
+cargo run
