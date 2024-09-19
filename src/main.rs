@@ -34,9 +34,13 @@ async fn main() {
         println!("      Longitude: {}", longitude);
         println!("");
         println!("  Calculated Information");
+        println!("    Sun:");
         println!("      Julian Day: {}", julian_day);
         println!("      Solar Declination: {}", solar_declination);
         println!("      Solar Hour Angle: {}", solar_hour_angle);
         println!("      Solar Ecliptic Position: {}", solar_ecliptic_position);
+        println!("    Moon:");
+        println!("      Moon Position: {:?}", calculations::moon_position(julian_day - 1721013.5));
+        
     }
 }

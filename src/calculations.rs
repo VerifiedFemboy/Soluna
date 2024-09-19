@@ -9,7 +9,7 @@ pub fn solar_declination(julian_day: f64) -> f64 {
 
 pub fn solar_hour_angle(time: f64, longitude: f64) -> f64 {
     let hour_angle = (time - 12.0) * 15.0 + longitude;
-    hour_angle.to_degrees()
+    hour_angle
 }
 
 pub fn calculate_julian_day(local: DateTime<Local>) -> f64 {
@@ -42,4 +42,25 @@ pub fn solar_ecliptic_position(day_of_year: f64) -> f64 {
     }
     
     lambda_s
+}
+
+pub fn moon_position(n: f64) -> (f64, f64) {
+    
+    // Average of the moon's length
+    let l_m = 218.316 + 13.176396 * n;
+    // Average of anomaly of the moon
+    let m_m = 134.963 + 13.064993 * n;
+
+    // Average of width of the moon
+    let f = 93.272 + 13.229350 * n;
+
+    // Convert to radians
+    let m_m_radiands = m_m.to_radians();
+    let f_radians = f.to_radians();
+
+    // Calculate the moon's position
+    let lambda_m = l_m + 6.289 * m_m_radiands.sin();
+    let beta_m = 5.128 * f_radians.sin();
+
+    (lambda_m, beta_m)
 }
