@@ -27,11 +27,16 @@ async fn main() {
         let solar_ecliptic_position = calculations::solar_ecliptic_position(julian_day - 1721013.5);
 
         let current_time_format: String = current_time.format("%H:%M:%S | %m-%d-%Y").to_string();
+    
 
         println!("Current Time (LOCAL): {}", current_time_format);
         println!("  Location Information");
         println!("      Latitude: {}", latitude);
         println!("      Longitude: {}", longitude);
+        println!("      Timezone: {}", geolocation.timezone);
+        println!("      City: {}", geolocation.city);
+        println!("      Region: {}", geolocation.region);
+        println!("      Country: {}", geolocation.country);
         println!("");
         println!("  Calculated Information");
         println!("    Sun:");
@@ -40,7 +45,9 @@ async fn main() {
         println!("      Solar Hour Angle: {}", solar_hour_angle);
         println!("      Solar Ecliptic Position: {}", solar_ecliptic_position);
         println!("    Moon:");
-        println!("      Moon Position: {:?}", calculations::moon_position(julian_day - 1721013.5));
+        let moon_ecliptic_position = calculations::moon_position(julian_day - 1721013.5);
+        println!("      Moon Position: {:?}", moon_ecliptic_position);
+        
         
     }
 }
