@@ -1,8 +1,8 @@
 
-use chrono::Datelike;
+use chrono::{Datelike, Timelike};
 use crossterm::event::{self, Event, KeyCode};
 use geolocation::Locator;
-use ratatui::{layout::{Constraint, Direction, Layout}, widgets::{Block, Borders, Paragraph}, DefaultTerminal};
+use ratatui::{layout::{Constraint, Direction, Layout}, style::{Color, Stylize}, widgets::{Block, Borders, Paragraph}, DefaultTerminal};
 use std::io::Result;
 
 use crate::calculations;
@@ -35,7 +35,12 @@ impl App {
         let terminal = &mut self.terminal;
         
         let current_time: chrono::DateTime<chrono::Local> = chrono::Local::now();
+        let time = current_time.time().hour() as f64 + current_time.minute() as f64 / 60.0 + current_time.second() as f64 / 3600.0;
         let current_time_formated = current_time.format("%H:%M:%S | %m-%d-%Y").to_string();
+
+        let latidude = self.geolocation.latitude.parse::<f64>().unwrap();
+        let longtidue = self.geolocation.longitude.parse::<f64>().unwrap();
+
         let _ = terminal.draw(|frame| {
             let chunks = Layout::default()
                 .direction(Direction::Vertical)
@@ -70,12 +75,16 @@ impl App {
 
 
             let solar_block = Block::default().title("Solar Information")
-            .borders(Borders::ALL);
+            .borders(Borders::ALL).fg(Color::Yellow);
 
             let current_day_of_year = current_time.ordinal() as f64;
+            let julian_day = calculations::calculate_julian_day(current_time);
+            let hour_angle = calculations::solar_hour_angle(time, longtidue);
 
             let solar_paragraph = Paragraph::new(
-                format!("Declination: {}", calculations::solar_declination(current_day_of_year)))
+                format!("Current Day Of Year: {}\nJulian Day: {}\nDeclination: {}\nHour Angle: {}", 
+                current_day_of_year, julian_day, calculations::solar_declination(current_day_of_year), hour_angle))
+                .style(Color::White)
                 .block(solar_block);
             
             frame.render_widget(solar_paragraph, chunks[1]);

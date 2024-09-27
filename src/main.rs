@@ -17,7 +17,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     println!("Getting your current geolocation...");
     let geolocation = geolocation::find(current_ip["ip"].as_str().unwrap()).unwrap();
-    
 
     let mut terminal = ratatui::init();
     
