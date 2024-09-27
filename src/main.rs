@@ -9,9 +9,15 @@ mod app;
 async fn main() -> Result<(), Box<dyn Error>> {
 
     println!("Getting your current IP address...");
-    let current_ip = reqwest::get("https://api64.ipify.org?format=json")
-    .await
-    .unwrap().text().await.unwrap();
+    let current_ip = loop {
+        match get_current_ip().await {
+            Ok(ip) => break ip,
+            Err(e) => {
+                eprintln!("Failed to get IP address: {}. Retrying...", e);
+                tokio::time::sleep(std::time::Duration::from_secs(5)).await;
+            }
+        }
+    };
 
     let current_ip: serde_json::Value = serde_json::from_str(&current_ip).unwrap();
 
@@ -68,4 +74,15 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // }
 
     Ok(())
+}
+
+async fn get_current_ip() -> Result<String, Box<dyn Error>> {
+    let request = reqwest::get("https://api64.ipify.org?format=json");
+    let response = request.await;
+    if response.is_ok() {
+        let text = response.unwrap().text().await.unwrap();
+        return Ok(text);
+    } else {
+        return Err(Box::new(std::io::Error::new(std::io::ErrorKind::Other, "Failed to get IP address")));
+    }
 }

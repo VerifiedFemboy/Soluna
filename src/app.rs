@@ -47,8 +47,8 @@ impl App {
                 .margin(1)
                 .constraints(
                     [
+                        Constraint::Percentage(20),
                         Constraint::Percentage(30),
-                        Constraint::Percentage(60),
                         Constraint::Percentage(10),
                     ]
                     .as_ref(),
@@ -60,11 +60,11 @@ impl App {
                             .borders(Borders::ALL);
 
             let location_paragraph = ratatui::widgets::Paragraph::new(
-                format!("IP: {}\nCurrent Time: {}\nLocation {}, {}: \nCity: {}\nCountry: {}\nRegion: {}\nTimezone: {}",
+                format!("IP: {}\nCurrent Time: {}\nLocation ({}, {}): \nCity: {}\nCountry: {}\nRegion: {}\nTimezone: {}",
                  self.current_ip,
                  current_time_formated,
-                 self.geolocation.latitude,
-                 self.geolocation.longitude,
+                 longtidue,
+                 latidude,
                  self.geolocation.city, 
                  self.geolocation.country, 
                  self.geolocation.region, self.geolocation.timezone))
@@ -82,12 +82,25 @@ impl App {
             let hour_angle = calculations::solar_hour_angle(time, longtidue);
 
             let solar_paragraph = Paragraph::new(
-                format!("Current Day Of Year: {}\nJulian Day: {}\nDeclination: {}\nHour Angle: {}", 
-                current_day_of_year, julian_day, calculations::solar_declination(current_day_of_year), hour_angle))
+                format!("Current Day Of Year: {}\nJulian Day: {}\nDeclination: {}\nHour Angle: {}\nEcliptic Position: {}", 
+                current_day_of_year, julian_day, calculations::solar_declination(current_day_of_year), hour_angle, calculations::solar_ecliptic_position(julian_day - 1721013.5)))
                 .style(Color::White)
                 .block(solar_block);
             
             frame.render_widget(solar_paragraph, chunks[1]);
+
+
+            let moon_block = Block::default().title("Moon Information")
+            .borders(Borders::ALL).fg(Color::Gray);
+
+            let moon_position = calculations::moon_position(julian_day - 1721013.5);
+
+            let moon_paragraph = Paragraph::new(
+                format!("Position: {:?}", moon_position))
+                .style(Color::White)
+                .block(moon_block);
+
+            frame.render_widget(moon_paragraph, chunks[2]);
         });
         Ok(())
     }
