@@ -60,7 +60,7 @@ impl App {
                             .borders(Borders::ALL);
 
             let location_paragraph = ratatui::widgets::Paragraph::new(
-                format!("IP: {}\nCurrent Time: {}\nLocation ({}, {}): \nCity: {}\nCountry: {}\nRegion: {}\nTimezone: {}",
+                format!("IP: {}\nCurrent Time: {}\nLocation ({}, {}): \n  City: {}\n  Country: {}\n  Region: {}\n  Timezone: {}",
                  self.current_ip,
                  current_time_formated,
                  longtidue,
@@ -98,7 +98,7 @@ impl App {
             let moon_paragraph = Paragraph::new(
                 format!("Position: {:?}", moon_position))
                 .style(Color::White)
-                .block(moon_block);
+                .block(moon_block).style(Color::White);
 
             frame.render_widget(moon_paragraph, chunks[2]);
         });
