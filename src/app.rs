@@ -5,7 +5,7 @@ use geolocation::Locator;
 use ratatui::{layout::{Constraint, Direction, Layout}, style::{Color, Stylize}, widgets::{Block, Borders, Paragraph}, DefaultTerminal};
 use std::io::Result;
 
-use crate::calculations;
+use crate::{calculations, location};
 
 pub struct App {
     terminal: DefaultTerminal,
@@ -47,9 +47,9 @@ impl App {
                 .margin(1)
                 .constraints(
                     [
-                        Constraint::Percentage(20),
-                        Constraint::Percentage(30),
-                        Constraint::Percentage(10),
+                        Constraint::Min(10),
+                        Constraint::Min(10),
+                        Constraint::Min(10),
                     ]
                     .as_ref(),
                 )
@@ -57,10 +57,11 @@ impl App {
             
             let block = Block::default()
                             .title("Location Information")
-                            .borders(Borders::ALL);
+                            .borders(Borders::ALL).fg(Color::Green);
 
+            let country_emote = location::country_emote(self.geolocation.country.clone());
             let location_paragraph = ratatui::widgets::Paragraph::new(
-                format!("IP: {}\nCurrent Time: {}\nLocation ({}, {}): \n  City: {}\n  Country: {}\n  Region: {}\n  Timezone: {}",
+                format!("IP: {}\n🕜Current Time: {}\n🌐Location ({}, {}): \n  🏙️City: {}\n  {country_emote}Country: {}\n  Region: {}\n  Timezone: {}",
                  self.current_ip,
                  current_time_formated,
                  longtidue,
@@ -68,13 +69,13 @@ impl App {
                  self.geolocation.city, 
                  self.geolocation.country, 
                  self.geolocation.region, self.geolocation.timezone))
-                        .block(block);
+                        .block(block).style(Color::White);
 
             frame.render_widget(location_paragraph, chunks[0]);
 
 
 
-            let solar_block = Block::default().title("Solar Information")
+            let solar_block = Block::default().title("☀️ Solar Information")
             .borders(Borders::ALL).fg(Color::Yellow);
 
             let current_day_of_year = current_time.ordinal() as f64;
@@ -90,8 +91,8 @@ impl App {
             frame.render_widget(solar_paragraph, chunks[1]);
 
 
-            let moon_block = Block::default().title("Moon Information")
-            .borders(Borders::ALL).fg(Color::Gray);
+            let moon_block = Block::default().title("🌕 Moon Information")
+            .borders(Borders::ALL).fg(Color::Rgb(71, 71, 71));
 
             let moon_position = calculations::moon_position(julian_day - 1721013.5);
 

@@ -4,6 +4,7 @@ use app::App;
 
 mod calculations;
 mod app;
+mod location;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
