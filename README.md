@@ -56,9 +56,6 @@ The main function is the entry point of the program. It performs the following s
 - **tokio**:
     - Used for asynchronous programming.
 
-- **isahc**:
-    - Used for making HTTP requests.
-
 ## Running the Program
 
 To run the program, ensure you have Rust and Cargo installed. Then, execute the following commands:
@@ -66,3 +63,7 @@ To run the program, ensure you have Rust and Cargo installed. Then, execute the 
 ```sh
 cargo build
 cargo run
+```
+
+## Photos
+![alt text](screenshoot.png)
