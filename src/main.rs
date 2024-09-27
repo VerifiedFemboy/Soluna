@@ -1,11 +1,12 @@
+use std::error::Error;
+
 use app::App;
-use chrono::{Datelike, Timelike};
 
 mod calculations;
 mod app;
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), Box<dyn Error>> {
 
     println!("Getting your current IP address...");
     let current_ip = reqwest::get("https://api64.ipify.org?format=json")
@@ -16,13 +17,17 @@ async fn main() {
 
     println!("Getting your current geolocation...");
     let geolocation = geolocation::find(current_ip["ip"].as_str().unwrap()).unwrap();
-    let longitude = geolocation.longitude.parse::<f64>().unwrap();
-    let latitude = geolocation.latitude.parse::<f64>().unwrap();
+    
 
-    let terminal = ratatui::init();
-    let mut app = App::new(terminal, current_ip.to_string(), geolocation);
+    let mut terminal = ratatui::init();
+    
+    terminal.clear()?;
+    let mut app = App::new(terminal, current_ip["ip"].to_string(), geolocation);
 
-    app.run_app().expect("Something went wrong while running this APP");
+    match app.run_app() {
+        Ok(_) => ratatui::restore(),
+        Err(e) => eprintln!("Error: {}", e),
+    };
 
     // loop {
     //     print!("\x1B[2J\x1B[1;1H");
@@ -62,4 +67,6 @@ async fn main() {
         
         
     // }
+
+    Ok(())
 }
