@@ -97,7 +97,7 @@ impl App {
             let moon_position = calculations::moon_position(julian_day - 1721013.5);
 
             let moon_paragraph = Paragraph::new(
-                format!("Position: {:?}\nMoon phase: {}", moon_position, calculations::moon_phase_as_str(julian_day)))
+                format!("Position: {:?}\nMoon phase: {}\nNext Full Moon in {}", moon_position, calculations::moon_phase_as_str(julian_day), calculations::next_full_moon(julian_day)))
                 .style(Color::White)
                 .block(moon_block).style(Color::White);
 

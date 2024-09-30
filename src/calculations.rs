@@ -1,3 +1,5 @@
+use std::f64::consts::PI;
+
 use chrono::{DateTime, Datelike, Local, Timelike};
 
 pub fn solar_declination(current_day_of_year: f64) -> f64 {
@@ -64,7 +66,6 @@ pub fn moon_position(n: f64) -> (f64, f64) {
     (lambda_m, beta_m)
 }
 
-//TODO: Implement moon phase calculation
 pub fn moon_phase(julian_day: f64) -> f64 {
     let days_since_new_moon = julian_day - 2451550.1; // Reference new moon date: January 6, 2000
     let new_moon_cycle = 29.53058867; // Average length of the lunar cycle in days
@@ -74,6 +75,7 @@ pub fn moon_phase(julian_day: f64) -> f64 {
 
 pub fn moon_phase_as_str(julian_day: f64) -> String {
     let phase = moon_phase(julian_day);
+    let percentage = illumination(phase);
     let phase_str = match phase {
         p if p < 0.03 => "🌑 New Moon",
         p if p < 0.25 => "🌒 Waxing Crescent",
@@ -84,5 +86,17 @@ pub fn moon_phase_as_str(julian_day: f64) -> String {
         p if p < 0.77 => "🌗 Last Quarter",
         _ => "🌘 Waning Crescent",
     };
-    phase_str.to_string()
+    phase_str.to_string() + &format!(" ({:.2}%)", percentage)
+}
+
+pub fn illumination(phase: f64) -> f64 {
+    let result = 50.0 * (1.0 - (2.0 * PI * phase).cos());
+    result
+}
+//TODO: make better calculations
+pub fn next_full_moon(julian_day: f64) -> i8 {
+    let new_moon_cycle = 29.53058867; // Average length of the lunar cycle in days
+    let phase = moon_phase(julian_day);
+    let days_until_full_moon = new_moon_cycle * (0.5 - phase);
+    (julian_day + days_until_full_moon) as i8
 }
