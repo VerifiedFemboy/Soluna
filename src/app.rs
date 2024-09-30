@@ -80,7 +80,7 @@ impl App {
 
             let current_day_of_year = current_time.ordinal() as f64;
             let julian_day = calculations::calculate_julian_day(current_time);
-            let hour_angle = calculations::solar_hour_angle(time, longtidue);
+            let hour_angle = calculations::solar_hour_angle(&time, &longtidue);
 
             let solar_paragraph = Paragraph::new(
                 format!("Current Day Of Year: {}\nJulian Day: {}\nDeclination: {}\nHour Angle: {}\nEcliptic Position: {}", 
@@ -97,7 +97,7 @@ impl App {
             let moon_position = calculations::moon_position(julian_day - 1721013.5);
 
             let moon_paragraph = Paragraph::new(
-                format!("Position: {:?}\nMoon phase: {}\nNext Full Moon in {}", moon_position, calculations::moon_phase_as_str(julian_day), calculations::next_full_moon(julian_day)))
+                format!("Position: {:?}\nMoon phase: {}\nNext Full Moon in {}", moon_position, calculations::moon_phase_as_str(&julian_day), calculations::next_full_moon(&julian_day)))
                 .style(Color::White)
                 .block(moon_block).style(Color::White);
 

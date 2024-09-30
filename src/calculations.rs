@@ -8,7 +8,7 @@ pub fn solar_declination(current_day_of_year: f64) -> f64 {
     gamma
 }
 
-pub fn solar_hour_angle(time: f64, longitude: f64) -> f64 {
+pub fn solar_hour_angle(time: &f64, longitude: &f64) -> f64 {
     let hour_angle = (time - 12.0) * 15.0 + longitude;
     hour_angle
 }
@@ -66,14 +66,14 @@ pub fn moon_position(n: f64) -> (f64, f64) {
     (lambda_m, beta_m)
 }
 
-pub fn moon_phase(julian_day: f64) -> f64 {
+pub fn moon_phase(julian_day: &f64) -> f64 {
     let days_since_new_moon = julian_day - 2451550.1; // Reference new moon date: January 6, 2000
     let new_moon_cycle = 29.53058867; // Average length of the lunar cycle in days
     let phase = (days_since_new_moon % new_moon_cycle) / new_moon_cycle;
     phase
 }
 
-pub fn moon_phase_as_str(julian_day: f64) -> String {
+pub fn moon_phase_as_str(julian_day: &f64) -> String {
     let phase = moon_phase(julian_day);
     let percentage = illumination(phase);
     let phase_str = match phase {
@@ -94,7 +94,7 @@ pub fn illumination(phase: f64) -> f64 {
     result
 }
 //TODO: make better calculations
-pub fn next_full_moon(julian_day: f64) -> i8 {
+pub fn next_full_moon(julian_day: &f64) -> i8 {
     let new_moon_cycle = 29.53058867; // Average length of the lunar cycle in days
     let phase = moon_phase(julian_day);
     let days_until_full_moon = new_moon_cycle * (0.5 - phase);
