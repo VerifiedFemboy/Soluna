@@ -75,14 +75,14 @@ pub fn moon_phase(julian_day: f64) -> f64 {
 pub fn moon_phase_as_str(julian_day: f64) -> String {
     let phase = moon_phase(julian_day);
     let phase_str = match phase {
-        p if p < 0.03 => "New Moon",
-        p if p < 0.25 => "Waxing Crescent",
-        p if p < 0.27 => "First Quarter",
-        p if p < 0.50 => "Waxing Gibbous",
-        p if p < 0.53 => "Full Moon",
-        p if p < 0.75 => "Waning Gibbous",
-        p if p < 0.77 => "Last Quarter",
-        _ => "Waning Crescent",
+        p if p < 0.03 => "🌑 New Moon",
+        p if p < 0.25 => "🌒 Waxing Crescent",
+        p if p < 0.27 => "🌓 First Quarter",
+        p if p < 0.50 => "🌔 Waxing Gibbous",
+        p if p < 0.53 => "🌕 Full Moon",
+        p if p < 0.75 => "🌖 Waning Gibbous",
+        p if p < 0.77 => "🌗 Last Quarter",
+        _ => "🌘 Waning Crescent",
     };
     phase_str.to_string()
 }
