@@ -65,3 +65,24 @@ pub fn moon_position(n: f64) -> (f64, f64) {
 }
 
 //TODO: Implement moon phase calculation
+pub fn moon_phase(julian_day: f64) -> f64 {
+    let days_since_new_moon = julian_day - 2451550.1; // Reference new moon date: January 6, 2000
+    let new_moon_cycle = 29.53058867; // Average length of the lunar cycle in days
+    let phase = (days_since_new_moon % new_moon_cycle) / new_moon_cycle;
+    phase
+}
+
+pub fn moon_phase_as_str(julian_day: f64) -> String {
+    let phase = moon_phase(julian_day);
+    let phase_str = match phase {
+        p if p < 0.03 => "New Moon",
+        p if p < 0.25 => "Waxing Crescent",
+        p if p < 0.27 => "First Quarter",
+        p if p < 0.50 => "Waxing Gibbous",
+        p if p < 0.53 => "Full Moon",
+        p if p < 0.75 => "Waning Gibbous",
+        p if p < 0.77 => "Last Quarter",
+        _ => "Waning Crescent",
+    };
+    phase_str.to_string()
+}
