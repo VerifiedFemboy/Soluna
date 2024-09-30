@@ -49,9 +49,9 @@ impl App {
                 .margin(1)
                 .constraints(
                     [
-                        Constraint::Min(10),
-                        Constraint::Min(10),
-                        Constraint::Min(10),
+                        Constraint::Min(8),
+                        Constraint::Min(7),
+                        Constraint::Min(5),
                         Constraint::Max(1),
                     ]
                     .as_ref(),
@@ -75,8 +75,6 @@ impl App {
                         .block(block).style(Color::White);
 
             frame.render_widget(location_paragraph, chunks[0]);
-
-
 
             let solar_block = Block::default().title("☀️ Solar Information")
             .borders(Borders::ALL).fg(Color::Yellow);
