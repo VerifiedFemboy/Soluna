@@ -2,7 +2,7 @@
 use chrono::{Datelike, Timelike};
 use crossterm::event::{self, Event, KeyCode};
 use geolocation::Locator;
-use ratatui::{layout::{Constraint, Direction, Layout}, style::{Color, Stylize}, widgets::{Block, Borders, Paragraph}, DefaultTerminal};
+use ratatui::{layout::{Constraint, Direction, Layout, Rect}, style::{Color, Stylize}, widgets::{Block, Borders, Paragraph}, DefaultTerminal};
 use std::io::Result;
 
 use crate::{calculations, location};
@@ -12,6 +12,7 @@ pub struct App {
     current_ip: String,
     geolocation: Locator,
     exit: bool,
+    show_credits: bool,
 }
 
 impl App {
@@ -21,6 +22,7 @@ impl App {
             current_ip,
             geolocation,
             exit: false,
+            show_credits: false,
         }
     }
 
@@ -50,6 +52,7 @@ impl App {
                         Constraint::Min(10),
                         Constraint::Min(10),
                         Constraint::Min(10),
+                        Constraint::Max(1),
                     ]
                     .as_ref(),
                 )
@@ -102,6 +105,28 @@ impl App {
                 .block(moon_block).style(Color::White);
 
             frame.render_widget(moon_paragraph, chunks[2]);
+
+
+            if self.show_credits {
+                let credits_block = Block::default().title("Credits")
+                .borders(Borders::ALL).fg(Color::Rgb(71, 71, 71));
+
+                let credits_paragraph = Paragraph::new(
+                    "Created By VerifiedFemboy\n"
+                ).style(Color::White).block(credits_block);
+                let area = frame.area();
+                let centered_area = Rect::new(
+                    (area.width.saturating_sub(50)) / 2,
+                    (area.height.saturating_sub(3)) / 2,
+                    50,
+                    3,
+                );
+                frame.render_widget(credits_paragraph, centered_area);
+            }
+
+            let footer_paragraph = Paragraph::new("Press 'q' to exit | Press 'Tab' to show/hide credits")
+                .style(Color::White);
+            frame.render_widget(footer_paragraph, chunks[3]);
         });
         Ok(())
     }
@@ -112,6 +137,9 @@ impl App {
                 match key_event.code {
                     KeyCode::Char('q') => {
                         self.exit = true;
+                    }
+                    KeyCode::Tab => {
+                        self.show_credits = !self.show_credits;
                     }
                     _ => {}
                 }

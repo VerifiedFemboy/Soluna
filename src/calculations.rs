@@ -75,7 +75,7 @@ pub fn moon_phase(julian_day: &f64) -> f64 {
 
 pub fn moon_phase_as_str(julian_day: &f64) -> String {
     let phase = moon_phase(julian_day);
-    let percentage = illumination(phase);
+    let percentage = illumination(&phase);
     let phase_str = match phase {
         p if p < 0.03 => "🌑 New Moon",
         p if p < 0.25 => "🌒 Waxing Crescent",
@@ -89,7 +89,7 @@ pub fn moon_phase_as_str(julian_day: &f64) -> String {
     phase_str.to_string() + &format!(" ({:.2}%)", percentage)
 }
 
-pub fn illumination(phase: f64) -> f64 {
+pub fn illumination(phase: &f64) -> f64 {
     let result = 50.0 * (1.0 - (2.0 * PI * phase).cos());
     result
 }
