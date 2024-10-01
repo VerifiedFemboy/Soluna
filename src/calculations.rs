@@ -67,8 +67,8 @@ pub fn moon_position(n: f64) -> (f64, f64) {
 }
 
 pub fn moon_phase(julian_day: &f64) -> f64 {
-    let days_since_new_moon = julian_day - 2451550.1; // Reference new moon date: January 6, 2000
-    let new_moon_cycle = 29.53058867; // Average length of the lunar cycle in days
+    let days_since_new_moon = days_since_new_moon(julian_day); // Reference new moon date: January 6, 2000
+    let new_moon_cycle = new_moon_cycle();
     let phase = (days_since_new_moon % new_moon_cycle) / new_moon_cycle;
     phase
 }
@@ -89,14 +89,31 @@ pub fn moon_phase_as_str(julian_day: &f64) -> String {
     phase_str.to_string() + &format!(" ({:.2}%)", percentage)
 }
 
+//TODO: make calculations based on location and moon position
 pub fn illumination(phase: &f64) -> f64 {
-    let result = 50.0 * (1.0 - (2.0 * PI * phase).cos());
+    let result = 50.0 * (1.0 - (2.0 * PI * phase / new_moon_cycle()).cos());
     result
 }
+
 //TODO: make better calculations
 pub fn next_full_moon(julian_day: &f64) -> i8 {
-    let new_moon_cycle = 29.53058867; // Average length of the lunar cycle in days
     let phase = moon_phase(julian_day);
-    let days_until_full_moon = new_moon_cycle * (0.5 - phase);
-    (julian_day + days_until_full_moon) as i8
+    let lunar_cycle = new_moon_cycle();
+    let full_moon_phase = lunar_cycle / 2.0;
+
+    if phase < full_moon_phase {
+        (full_moon_phase - phase).round() as i8
+    } else {
+        (lunar_cycle - phase + full_moon_phase).round() as i8
+    }
+}
+
+
+fn new_moon_cycle() -> f64 {
+    29.53058867 // Average length of the lunar cycle in days
+}
+
+pub fn days_since_new_moon(julian_day: &f64) -> f64 {
+    let days_since_new_moon = julian_day - 2451550.1; // Reference new moon date: January 6, 2000
+    days_since_new_moon
 }
