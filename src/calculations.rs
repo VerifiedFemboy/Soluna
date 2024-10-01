@@ -117,3 +117,32 @@ pub fn days_since_new_moon(julian_day: &f64) -> f64 {
     let days_since_new_moon = julian_day - 2451550.1; // Reference new moon date: January 6, 2000
     days_since_new_moon
 }
+
+fn mean_anomally(julian_day: &f64, peryhelion_jd: &f64) -> f64 {
+    
+    let n = 0.9856076686;
+    let m = n * (julian_day - peryhelion_jd);
+    (m % 360.0).to_radians()
+}
+
+fn eccrentic_anomaly(mean_anomaly: f64, eccentricity: &f64) -> f64 {
+    let mut e = mean_anomaly;
+    let mut delta: f64 = 1.0;
+
+    while delta.abs() > 1e-6 {
+        delta = (mean_anomaly + eccentricity * e.sin() - e) / (1.0 - eccentricity * e.cos());
+        e += delta;
+    }
+    e
+}
+
+pub fn distance_to_sun(julian_day: &f64) -> f64 {
+    let eccentricity = 0.0167;
+    let peryhelion_jd = 2451545.0;
+    let semi_major_axis = 1.0;
+
+    let m = mean_anomally(julian_day, &peryhelion_jd);
+    let e = eccrentic_anomaly(m, &eccentricity);
+
+    semi_major_axis * (1.0 - eccentricity.powi(2)) / (1.0 + eccentricity * e.cos())
+}

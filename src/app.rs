@@ -84,8 +84,8 @@ impl App {
             let hour_angle = calculations::solar_hour_angle(&time, &longtidue);
 
             let solar_paragraph = Paragraph::new(
-                format!("Current Day Of Year: {}\nJulian Day: {}\nDeclination: {}\nHour Angle: {}\nEcliptic Position: {}", 
-                current_day_of_year, julian_day, calculations::solar_declination(current_day_of_year), hour_angle, calculations::solar_ecliptic_position(julian_day - 1721013.5)))
+                format!("Current Day Of Year: {}\nJulian Day: {}\nDeclination: {}\nHour Angle: {}\nEcliptic Position: {}\nCurrent distance to Sun: {} AU", 
+                current_day_of_year, julian_day, calculations::solar_declination(current_day_of_year), hour_angle, calculations::solar_ecliptic_position(julian_day - 1721013.5), calculations::distance_to_sun(&julian_day)))
                 .style(Color::White)
                 .block(solar_block);
             
