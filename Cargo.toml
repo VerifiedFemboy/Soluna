@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+astro = "2.0.0"
 chrono = "0.4.38"
 crossterm = "0.28.1"
 geolocation = "0.2.1"
