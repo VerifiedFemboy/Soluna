@@ -13,6 +13,7 @@ pub struct App {
     geolocation: Locator,
     exit: bool,
     show_credits: bool,
+    show_calculations: bool,
 }
 
 impl App {
@@ -23,6 +24,7 @@ impl App {
             geolocation,
             exit: false,
             show_credits: false,
+            show_calculations: false,
         }
     }
 
@@ -122,6 +124,26 @@ impl App {
                 frame.render_widget(credits_paragraph, centered_area);
             }
 
+            if self.show_calculations {
+
+                let cosines = calculations::law_of_cosines(3.0, 4.0, 90.0);
+
+                let calculations_block = Block::default().title("Calculations")
+                .borders(Borders::ALL).fg(Color::Rgb(71, 71, 71));
+
+                let calculations_paragraph = Paragraph::new(
+                    format!("Law of Cosines: {cosines}\n")
+                ).style(Color::White).block(calculations_block);
+                let area = frame.area();
+                let centered_area = Rect::new(
+                    (area.width.saturating_sub(50)) / 2,
+                    (area.height.saturating_sub(3)) / 2,
+                    50,
+                    3,
+                );
+                frame.render_widget(calculations_paragraph, centered_area);
+            }
+
             let footer_paragraph = Paragraph::new("Press 'q' to exit | Press 'Tab' to show/hide credits")
                 .style(Color::White);
             frame.render_widget(footer_paragraph, chunks[3]);
@@ -138,6 +160,9 @@ impl App {
                     }
                     KeyCode::Tab => {
                         self.show_credits = !self.show_credits;
+                    },
+                    KeyCode::F(1) => {
+                        self.show_calculations = !self.show_calculations;
                     }
                     _ => {}
                 }

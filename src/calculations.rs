@@ -163,3 +163,7 @@ pub fn solar_position(julian_day: &f64) -> (f64, f64) {
 
     (r, v)
 }
+
+pub fn law_of_cosines(a: f64, b: f64, degree: f64) -> f64 {
+    (a.powi(2) + b.powi(2) - 2.0 * a * b * degree.cos()).sqrt()
+}
