@@ -1,6 +1,9 @@
 use std::f64::consts::PI;
 
 use chrono::{DateTime, Datelike, Local, Timelike};
+use known_informations::*;
+
+use crate::known_informations;
 
 pub fn solar_declination(current_day_of_year: f64) -> f64 {
     //It calculates the solar declination angle orbital tilt of the Earth
@@ -75,7 +78,7 @@ pub fn moon_phase(julian_day: &f64) -> f64 {
 
 pub fn moon_phase_as_str(julian_day: &f64) -> String {
     let phase = moon_phase(julian_day);
-    let percentage = illumination(&phase);
+    let percentage = illumination(&phase) * 100.0;
     let phase_str = match phase {
         p if p < 0.03 => "🌑 New Moon",
         p if p < 0.25 => "🌒 Waxing Crescent",
@@ -109,9 +112,6 @@ pub fn next_full_moon(julian_day: &f64) -> i8 {
 }
 
 
-fn new_moon_cycle() -> f64 {
-    29.53058867 // Average length of the lunar cycle in days
-}
 
 pub fn days_since_new_moon(julian_day: &f64) -> f64 {
     let days_since_new_moon = julian_day - 2451550.1; // Reference new moon date: January 6, 2000
@@ -167,3 +167,4 @@ pub fn solar_position(julian_day: &f64) -> (f64, f64) {
 pub fn law_of_cosines(a: f64, b: f64, degree: f64) -> f64 {
     (a.powi(2) + b.powi(2) - 2.0 * a * b * degree.cos()).sqrt()
 }
+

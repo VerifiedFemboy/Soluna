@@ -5,7 +5,7 @@ use geolocation::Locator;
 use ratatui::{layout::{Constraint, Direction, Layout, Rect}, style::{Color, Stylize}, widgets::{Block, Borders, Paragraph}, DefaultTerminal};
 use std::io::Result;
 
-use crate::{calculations, location};
+use crate::{calculations, known_informations::{average_moon_distance, average_sun_distance}, location};
 
 pub struct App {
     terminal: DefaultTerminal,
@@ -86,8 +86,13 @@ impl App {
             let hour_angle = calculations::solar_hour_angle(&time, &longtidue);
 
             let solar_paragraph = Paragraph::new(
-                format!("Current Day Of Year: {}\nJulian Day: {}\nDeclination: {}\nHour Angle: {}\nEcliptic Position: {}\nCurrent distance to Sun: {} AU\nPosition: {:?}", 
-                current_day_of_year, julian_day, calculations::solar_declination(current_day_of_year), hour_angle, calculations::solar_ecliptic_position(julian_day - 1721013.5), calculations::distance_to_sun(&julian_day), calculations::solar_position(&julian_day)))
+                format!("Current Day Of Year: {}\nJulian Day: {}\nDeclination: {}\nHour Angle: {}\nEcliptic Position: {}\nCurrent distance to Sun: {} AU\nAvg distance: {}\nPosition: {:?}", 
+                current_day_of_year, julian_day,
+                calculations::solar_declination(current_day_of_year), 
+                hour_angle, calculations::solar_ecliptic_position(julian_day - 1721013.5), 
+                calculations::distance_to_sun(&julian_day),
+                average_sun_distance(),
+                calculations::solar_position(&julian_day)))
                 .style(Color::White)
                 .block(solar_block);
             
@@ -100,7 +105,11 @@ impl App {
             let moon_position = calculations::moon_position(julian_day - 1721013.5);
 
             let moon_paragraph = Paragraph::new(
-                format!("Position: {:?}\nMoon phase: {}\nNext Full Moon in {}", moon_position, calculations::moon_phase_as_str(&julian_day), calculations::next_full_moon(&julian_day)))
+                format!("Position: {:?}\nMoon phase: {}\nNext Full Moon in {}\nAvg distance: {}", 
+                moon_position, 
+                calculations::moon_phase_as_str(&julian_day), 
+                calculations::next_full_moon(&julian_day), average_moon_distance()))
+
                 .style(Color::White)
                 .block(moon_block).style(Color::White);
 
