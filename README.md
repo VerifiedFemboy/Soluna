@@ -66,4 +66,4 @@ cargo run
 ```
 
 ## Photos
-![alt text](screenshoot.png)
+![alt text](image.png)

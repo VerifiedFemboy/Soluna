@@ -6,6 +6,7 @@ version = 3
 name = "Soluna"
 version = "0.1.0"
 dependencies = [
+ "astro",
  "chrono",
  "crossterm",
  "geolocation",
@@ -62,6 +63,12 @@ checksum = "819e7219dbd41043ac279b19830f2efc897156490d7fd6ea916720117ee66311"
 dependencies = [
  "libc",
 ]
+
+[[package]]
+name = "astro"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "199632e1a87451cf771da7adeba192cab923ede42657ac3de0133ba6f4ae14be"
 
 [[package]]
 name = "async-channel"

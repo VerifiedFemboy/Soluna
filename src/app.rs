@@ -2,16 +2,18 @@
 use chrono::{Datelike, Timelike};
 use crossterm::event::{self, Event, KeyCode};
 use geolocation::Locator;
-use ratatui::{layout::{Constraint, Direction, Layout}, style::{Color, Stylize}, widgets::{Block, Borders, Paragraph}, DefaultTerminal};
+use ratatui::{layout::{Constraint, Direction, Layout, Rect}, style::{Color, Stylize}, widgets::{Block, Borders, Paragraph}, DefaultTerminal};
 use std::io::Result;
 
-use crate::{calculations, location};
+use crate::{calculations, known_informations::{average_moon_distance, average_sun_distance}, location};
 
 pub struct App {
     terminal: DefaultTerminal,
     current_ip: String,
     geolocation: Locator,
     exit: bool,
+    show_credits: bool,
+    show_calculations: bool,
 }
 
 impl App {
@@ -21,6 +23,8 @@ impl App {
             current_ip,
             geolocation,
             exit: false,
+            show_credits: false,
+            show_calculations: false,
         }
     }
 
@@ -47,9 +51,10 @@ impl App {
                 .margin(1)
                 .constraints(
                     [
-                        Constraint::Min(10),
-                        Constraint::Min(10),
-                        Constraint::Min(10),
+                        Constraint::Min(8),
+                        Constraint::Min(7),
+                        Constraint::Min(5),
+                        Constraint::Max(1),
                     ]
                     .as_ref(),
                 )
@@ -73,18 +78,21 @@ impl App {
 
             frame.render_widget(location_paragraph, chunks[0]);
 
-
-
             let solar_block = Block::default().title("☀️ Solar Information")
             .borders(Borders::ALL).fg(Color::Yellow);
 
             let current_day_of_year = current_time.ordinal() as f64;
             let julian_day = calculations::calculate_julian_day(current_time);
-            let hour_angle = calculations::solar_hour_angle(time, longtidue);
+            let hour_angle = calculations::solar_hour_angle(&time, &longtidue);
 
             let solar_paragraph = Paragraph::new(
-                format!("Current Day Of Year: {}\nJulian Day: {}\nDeclination: {}\nHour Angle: {}\nEcliptic Position: {}", 
-                current_day_of_year, julian_day, calculations::solar_declination(current_day_of_year), hour_angle, calculations::solar_ecliptic_position(julian_day - 1721013.5)))
+                format!("Current Day Of Year: {}\nJulian Day: {}\nDeclination: {}\nHour Angle: {}\nEcliptic Position: {}\nCurrent distance to Sun: {} AU\nAvg distance: {}\nPosition: {:?}", 
+                current_day_of_year, julian_day,
+                calculations::solar_declination(current_day_of_year), 
+                hour_angle, calculations::solar_ecliptic_position(julian_day - 1721013.5), 
+                calculations::distance_to_sun(&julian_day),
+                average_sun_distance(),
+                calculations::solar_position(&julian_day)))
                 .style(Color::White)
                 .block(solar_block);
             
@@ -97,11 +105,57 @@ impl App {
             let moon_position = calculations::moon_position(julian_day - 1721013.5);
 
             let moon_paragraph = Paragraph::new(
-                format!("Position: {:?}", moon_position))
+                format!("Position: {:?}\nMoon phase: {}\nNext Full Moon in {}\nAvg distance: {}", 
+                moon_position, 
+                calculations::moon_phase_as_str(&julian_day), 
+                calculations::next_full_moon(&julian_day), average_moon_distance()))
+
                 .style(Color::White)
                 .block(moon_block).style(Color::White);
 
             frame.render_widget(moon_paragraph, chunks[2]);
+
+
+            if self.show_credits {
+                let credits_block = Block::default().title("Credits")
+                .borders(Borders::ALL).fg(Color::Rgb(71, 71, 71));
+
+                let credits_paragraph = Paragraph::new(
+                    "Created By VerifiedFemboy\n"
+                ).style(Color::White).block(credits_block);
+                let area = frame.area();
+                let centered_area = Rect::new(
+                    (area.width.saturating_sub(50)) / 2,
+                    (area.height.saturating_sub(3)) / 2,
+                    50,
+                    3,
+                );
+                frame.render_widget(credits_paragraph, centered_area);
+            }
+
+            if self.show_calculations {
+
+                let cosines = calculations::law_of_cosines(3.0, 4.0, 90.0);
+
+                let calculations_block = Block::default().title("Calculations")
+                .borders(Borders::ALL).fg(Color::Rgb(71, 71, 71));
+
+                let calculations_paragraph = Paragraph::new(
+                    format!("Law of Cosines: {cosines}\n")
+                ).style(Color::White).block(calculations_block);
+                let area = frame.area();
+                let centered_area = Rect::new(
+                    (area.width.saturating_sub(50)) / 2,
+                    (area.height.saturating_sub(3)) / 2,
+                    50,
+                    3,
+                );
+                frame.render_widget(calculations_paragraph, centered_area);
+            }
+
+            let footer_paragraph = Paragraph::new("Press 'q' to exit | Press 'Tab' to show/hide credits")
+                .style(Color::White);
+            frame.render_widget(footer_paragraph, chunks[3]);
         });
         Ok(())
     }
@@ -112,6 +166,12 @@ impl App {
                 match key_event.code {
                     KeyCode::Char('q') => {
                         self.exit = true;
+                    }
+                    KeyCode::Tab => {
+                        self.show_credits = !self.show_credits;
+                    },
+                    KeyCode::F(1) => {
+                        self.show_calculations = !self.show_calculations;
                     }
                     _ => {}
                 }

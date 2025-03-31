@@ -1,4 +1,9 @@
+use std::f64::consts::PI;
+
 use chrono::{DateTime, Datelike, Local, Timelike};
+use known_informations::*;
+
+use crate::known_informations;
 
 pub fn solar_declination(current_day_of_year: f64) -> f64 {
     //It calculates the solar declination angle orbital tilt of the Earth
@@ -6,7 +11,7 @@ pub fn solar_declination(current_day_of_year: f64) -> f64 {
     gamma
 }
 
-pub fn solar_hour_angle(time: f64, longitude: f64) -> f64 {
+pub fn solar_hour_angle(time: &f64, longitude: &f64) -> f64 {
     let hour_angle = (time - 12.0) * 15.0 + longitude;
     hour_angle
 }
@@ -64,4 +69,102 @@ pub fn moon_position(n: f64) -> (f64, f64) {
     (lambda_m, beta_m)
 }
 
-//TODO: Implement moon phase calculation
+pub fn moon_phase(julian_day: &f64) -> f64 {
+    let days_since_new_moon = days_since_new_moon(julian_day); // Reference new moon date: January 6, 2000
+    let new_moon_cycle = new_moon_cycle();
+    let phase = (days_since_new_moon % new_moon_cycle) / new_moon_cycle;
+    phase
+}
+
+pub fn moon_phase_as_str(julian_day: &f64) -> String {
+    let phase = moon_phase(julian_day);
+    let percentage = illumination(&phase) * 100.0;
+    let phase_str = match phase {
+        p if p < 0.03 => "🌑 New Moon",
+        p if p < 0.25 => "🌒 Waxing Crescent",
+        p if p < 0.27 => "🌓 First Quarter",
+        p if p < 0.50 => "🌔 Waxing Gibbous",
+        p if p < 0.53 => "🌕 Full Moon",
+        p if p < 0.75 => "🌖 Waning Gibbous",
+        p if p < 0.77 => "🌗 Last Quarter",
+        _ => "🌘 Waning Crescent",
+    };
+    phase_str.to_string() + &format!(" ({:.2}%)", percentage)
+}
+
+//TODO: make calculations based on location and moon position
+pub fn illumination(phase: &f64) -> f64 {
+    let result = 50.0 * (1.0 - (2.0 * PI * phase / new_moon_cycle()).cos());
+    result
+}
+
+//TODO: make better calculations
+pub fn next_full_moon(julian_day: &f64) -> i8 {
+    let phase = moon_phase(julian_day);
+    let lunar_cycle = new_moon_cycle();
+    let full_moon_phase = lunar_cycle / 2.0;
+
+    if phase < full_moon_phase {
+        (full_moon_phase - phase).round() as i8
+    } else {
+        (lunar_cycle - phase + full_moon_phase).round() as i8
+    }
+}
+
+
+
+pub fn days_since_new_moon(julian_day: &f64) -> f64 {
+    let days_since_new_moon = julian_day - 2451550.1; // Reference new moon date: January 6, 2000
+    days_since_new_moon
+}
+
+fn mean_anomally(julian_day: &f64, peryhelion_jd: &f64) -> f64 {
+    
+    let n = 0.9856076686;
+    let m = n * (julian_day - peryhelion_jd);
+    (m % 360.0).to_radians()
+}
+
+fn eccrentic_anomaly(mean_anomaly: f64, eccentricity: &f64) -> f64 {
+    let mut e = mean_anomaly;
+    let mut delta: f64 = 1.0;
+
+    while delta.abs() > 1e-6 {
+        delta = (mean_anomaly + eccentricity * e.sin() - e) / (1.0 - eccentricity * e.cos());
+        e += delta;
+    }
+    e
+}
+
+pub fn distance_to_sun(julian_day: &f64) -> f64 {
+    let eccentricity = 0.0167;
+    let peryhelion_jd = 2451545.0;
+    let semi_major_axis = 1.0;
+
+    let m = mean_anomally(julian_day, &peryhelion_jd);
+    let e = eccrentic_anomaly(m, &eccentricity);
+
+    semi_major_axis * (1.0 - eccentricity.powi(2)) / (1.0 + eccentricity * e.cos())
+}
+
+pub fn solar_position(julian_day: &f64) -> (f64, f64) {
+    let eccentricity = 0.0167;
+    let peryhelion_jd = 2451545.0;
+    let semi_major_axis = 1.0;
+
+    let m = mean_anomally(julian_day, &peryhelion_jd);
+    let e = eccrentic_anomaly(m, &eccentricity);
+
+    let x = semi_major_axis * (e.cos() - eccentricity);
+    let y = semi_major_axis * (1.0 - eccentricity.powi(2)).sqrt() * e.sin();
+
+    let r = (x.powi(2) + y.powi(2)).sqrt();
+    let v = y.atan2(x);
+
+    (r, v)
+}
+
+pub fn law_of_cosines(a: f64, b: f64, degree: f64) -> f64 {
+    (a.powi(2) + b.powi(2) - 2.0 * a * b * degree.cos()).sqrt()
+}
+

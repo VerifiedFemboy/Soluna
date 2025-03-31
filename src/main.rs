@@ -5,6 +5,7 @@ use app::App;
 mod calculations;
 mod app;
 mod location;
+mod known_informations;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
